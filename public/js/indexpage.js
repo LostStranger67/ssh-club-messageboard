@@ -260,6 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const messages = [
         "Fully open source",
+        "Free as in plaintiff re-enfranchisement.",
         "Unalive",
         "Cyberpunk is dead.",
         "SSH... It's a secret!",
