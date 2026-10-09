@@ -259,6 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const messages = [
+        "Fully open source",
         "Unalive",
         "Cyberpunk is dead.",
         "SSH... It's a secret!",
