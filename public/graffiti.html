@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Wall</title>
+    <link rel="stylesheet" href="/css/indexpage.css"> 
+    <link rel="stylesheet" href="/css/graffiti.css">    
+    <link rel="apple-touch-icon" sizes="180x180" href="/resources/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/resources/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/resources/favicon-16x16.png">
+    <script src="/js/theme.js"></script>
+    <link rel="manifest" href="/resources/site.webmanifest">
+</head>
+<body>
+    <div class="news-marquee" id="news-marquee" hidden>
+        <div class="news-scroll" id="news-scroll"></div>
+    </div>
+
+    <div class="container">
+        <div class="wall-header">
+            <div class="wall-header-left">
+                <h1>GRAFFITI_WALL_V2</h1>
+                <a class="back-link" href="/">Back to the catalog</a>
+            </div>
+            <div class="wall-header-right">
+                <div class="coords-line">Coords: <span id="coords">0,0</span></div>
+                <div id="palette-bar"></div>
+            </div>
+        </div>
+
+        <div class="wall-scroll">
+            <div id="wall-container">
+                <canvas id="wall-grid"></canvas>
+                <canvas id="wall-canvas"></canvas>
+                <canvas id="wall-blink"></canvas>
+                <div id="cursor"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/newsformat.js"></script>
+    <script src="/js/graffiti.js"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Admin - DoNotEn.tr</title>
+    <link rel="stylesheet" href="/css/master.css">
+    <link rel="stylesheet" href="/css/radio.css">
+    <style>
+        .admin-table { width: 100%; border-collapse: collapse; }
+        .admin-table th, .admin-table td { padding: 8px; border: 1px solid var(--color-border); text-align: left; }
+        .admin-table button { padding: 4px 8px; margin: 2px; }
+        .login-panel { max-width: 400px; margin: 100px auto; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>ADMIN_PANEL</h1>
+    <div id="login-section" class="panel">
+        <h2>> AUTHENTICATE</h2>
+        <input type="password" id="admin-password" placeholder="Password" class="full-width">
+        <button id="login-btn">LOGIN</button>
+        <div id="login-status" class="status-bar"></div>
+    </div>
+    
+    <div id="admin-content" style="display:none;">
+        <div class="panel">
+            <h2>> SONG MANAGEMENT (<span id="admin-song-count">0</span>)</h2>
+            <input type="text" id="admin-search" placeholder="SEARCH..." class="full-width search-box">
+            <div class="song-list-container" style="max-height: 600px;">
+                <table class="admin-table">
+                    <thead>
+                        <tr><th>ID</th><th>Filename</th><th>Source</th><th>Requests</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="admin-song-list"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Joke Features Panel -->
+        <div class="panel">
+            <h2>> EXPERIMENTAL_FEATURES</h2>
+            <button id="meet-women-btn">Meet Women IRL</button>
+            <button id="detonate-btn">Remote Detonate</button>
+            <button id="coffee-spill-btn">Spill Coffee</button>
+            <button id="legalize-btn">Legalize Everything</button>
+            <div id="joke-output" class="status-bar"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let adminToken = localStorage.getItem('adminToken');
+    const loginSection = document.getElementById('login-section');
+    const adminContent = document.getElementById('admin-content');
+    
+    if (adminToken) {
+        loginSection.style.display = 'none';
+        adminContent.style.display = 'block';
+        loadSongs();
+    }
+    
+    document.getElementById('login-btn').addEventListener('click', () => {
+        const pass = document.getElementById('admin-password').value;
+        adminToken = pass;
+        localStorage.setItem('adminToken', pass);
+        loginSection.style.display = 'none';
+        adminContent.style.display = 'block';
+        loadSongs();
+    });
+    
+    async function loadSongs(search = '') {
+        const res = await fetch(`/api/admin/songs?q=${search}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await res.json();
+        const tbody = document.getElementById('admin-song-list');
+        tbody.innerHTML = data.songs.map(s => `
+            <tr>
+                <td>${s.id}</td>
+                <td>${s.filename}</td>
+                <td><span class="badge ${s.source}">${s.source}</span></td>
+                <td>${s.request_count}</td>
+                <td>
+                    <button onclick="deleteSong(${s.id})">DELETE</button>
+                    <button onclick="editSong(${s.id}, '${s.artist || ''}', '${s.title || ''}')">EDIT</button>
+                </td>
+            </tr>
+        `).join('');
+        document.getElementById('admin-song-count').textContent = data.songs.length;
+    }
+    
+    async function deleteSong(id) {
+        if (!confirm('Delete this song?')) return;
+        await fetch(`/api/admin/songs/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        loadSongs();
+    }
+    
+    async function editSong(id, artist, title) {
+        const newArtist = prompt('Artist:', artist);
+        const newTitle = prompt('Title:', title);
+        if (!newArtist || !newTitle) return;
+        await fetch(`/api/admin/songs/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${adminToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ artist: newArtist, title: newTitle })
+        });
+        loadSongs();
+    }
+    
+    // Joke features
+    document.getElementById('meet-women-btn').addEventListener('click', () => {
+        document.getElementById('joke-output').textContent = '> TCP handshake failed. Women not found in subnet.';
+    });
+    document.getElementById('detonate-btn').addEventListener('click', () => {
+        let count = 5;
+        const output = document.getElementById('joke-output');
+        const interval = setInterval(() => {
+            output.textContent = `> Detonation in ${count}...`;
+            count--;
+            if (count < 0) {
+                clearInterval(interval);
+                output.textContent = '> Explosion failed: plumpy admin forgot to plug in the C4.';
+            }
+        }, 1000);
+    });
+    document.getElementById('coffee-spill-btn').addEventListener('click', () => {
+        const drip = document.createElement('div');
+        drip.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;background:radial-gradient(circle at 30% 20%, rgba(139,69,19,0.3) 0%, transparent 50%);animation:drip 2s ease-out';
+        document.body.appendChild(drip);
+        setTimeout(() => drip.remove(), 2000);
+        document.getElementById('joke-output').textContent = '> Coffee spilled. Labcoat ruined. Science delayed.';
+    });
+    document.getElementById('legalize-btn').addEventListener('click', () => {
+        document.getElementById('joke-output').textContent = '> Bill rejected by the Fun Police. Try again never.';
+    });
+    
+    // Add CSS animation for coffee drip
+    const style = document.createElement('style');
+    style.textContent = `@keyframes drip { 0% { opacity:1; transform:scale(1); } 100% { opacity:0; transform:scale(3); } }`;
+    document.head.appendChild(style);
+</script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>🚫 DO NOT ENTER</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            color: #ddd;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 1.5rem;
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: normal;
+            letter-spacing: -2px;
+            margin: 0 0 1rem 0;
+            text-transform: uppercase;
+            border-bottom: 3px solid #ff0;
+            display: inline-block;
+        }
+        .logo-slash { text-decoration: line-through; text-decoration-color: #f00; text-decoration-thickness: 4px; }
+        .layout { display: flex; gap: 2rem; flex-wrap: wrap; }
+        .player-section { flex: 0 0 300px; }
+        .catalog-section { flex: 1; min-width: 400px; }
+        .panel {
+            border: 2px solid #444;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: #111;
+        }
+        .panel h2 {
+            margin-top: 0;
+            color: #ff0;
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+        }
+        audio { width: 100%; margin-bottom: 1rem; }
+        input, button, .file-label {
+            background: #000;
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 8px 12px;
+            font: inherit;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        button:hover, .file-label:hover {
+            background: #0f0;
+            color: #000;
+            cursor: pointer;
+        }
+        .search-box {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        .song-list-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #444;
+            background: #000;
+        }
+        .song-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .song-list li {
+            padding: 8px 12px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+        .song-list li:hover { background: #222; }
+        .song-list li.selected { background: #0f0; color: #000; }
+        .song-list li.requested { opacity: 0.5; pointer-events: none; text-decoration: line-through; }
+        .badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 0;
+            background: #333;
+            color: #ccc;
+        }
+        .badge.original { background: #550; color: #ff0; }
+        .badge.uploaded { background: #055; color: #0ff; }
+        .status-bar {
+            margin-top: 1rem;
+            padding: 10px;
+            background: #000;
+            border: 1px solid #ff0;
+            color: #ff0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>DO<span class="logo-slash">E</span>NOTEN.TR</h1>
+    
+    <div class="layout">
+        <div class="player-section">
+            <div class="panel">
+                <h2>> PLAYER</h2>
+                <audio src="https://ssh-club.org/stream" controls></audio>
+                <div id="now-playing" class="status-bar">> LOADING...</div>
+            </div>
+<div class="panel">
+    <h2>> UPLOAD</h2>
+    <input type="text" id="upload-artist" placeholder="ARTIST" style="width:100%; margin-bottom:8px;">
+    <input type="text" id="upload-title" placeholder="TITLE" style="width:100%; margin-bottom:8px;">
+    <label for="file-input" class="file-label">CHOOSE FILE</label>
+    <input type="file" id="file-input" accept=".mp3,audio/mpeg">
+    <button id="upload-btn">UPLOAD & QUEUE</button>
+    <div id="upload-status" class="status-bar" style="margin-top:10px;">> Ready</div>
+</div>
+        </div>
+        
+        <div class="catalog-section">
+            <div class="panel">
+                <h2>> CATALOG (<span id="song-count">0</span> tracks)</h2>
+                <input type="text" id="search-input" class="search-box" placeholder="SEARCH...">
+                <div class="song-list-container">
+                    <ul class="song-list" id="song-list">Loading...</ul>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <button id="request-selected-btn" disabled>REQUEST SELECTED</button>
+                    <button id="refresh-list-btn">REFRESH</button>
+                </div>
+                <div id="request-status" class="status-bar">> Select a song</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedSong = null;
+    let songList = [];
+
+    const songListEl = document.getElementById('song-list');
+    const searchInput = document.getElementById('search-input');
+    const requestBtn = document.getElementById('request-selected-btn');
+    const refreshBtn = document.getElementById('refresh-list-btn');
+    const requestStatus = document.getElementById('request-status');
+    const uploadStatus = document.getElementById('upload-status');
+    const songCountSpan = document.getElementById('song-count');
+    const nowPlayingDiv = document.getElementById('now-playing');
+
+    function parseFilename(filename) {
+      // Remove .mp3 extension
+      const name = filename.replace(/\.mp3$/i, '');
+    
+      // Split on " - " (space hyphen space)
+      const parts = name.split(' - ');
+      if (parts.length >= 2) {
+          return { artist: parts[0].trim(), title: parts.slice(1).join(' - ').trim() };
+      }
+      // Fallback: treat whole thing as title
+      return { artist: 'Unknown', title: name };
+    }
+
+    async function loadSongs(search = '') {
+        try {
+            const res = await fetch(`/api/songs?q=${encodeURIComponent(search)}`);
+            const data = await res.json();
+            songList = data.songs;
+            renderSongList(songList);
+            songCountSpan.textContent = songList.length;
+        } catch (err) {
+            console.error('Failed to load songs:', err);
+            songListEl.innerHTML = '<li>Error loading catalog</li>';
+        }
+    }
+
+    function renderSongList(songs) {
+        songListEl.innerHTML = '';
+        if (songs.length === 0) {
+            songListEl.innerHTML = '<li>No tracks found</li>';
+            return;
+        }
+        songs.forEach(song => {
+            const li = document.createElement('li');
+            li.dataset.filename = song.filename;
+            li.innerHTML = `
+                <span><strong>${song.artist}</strong> - ${song.title}</span>
+                <span class="badge ${song.source}">${song.source}</span>
+            `;
+            li.addEventListener('click', () => {
+                document.querySelectorAll('.song-list li').forEach(el => el.classList.remove('selected'));
+                li.classList.add('selected');
+                selectedSong = song.filename;
+                requestBtn.disabled = false;
+                requestStatus.textContent = `> Selected: ${song.filename}`;
+            });
+            songListEl.appendChild(li);
+        });
+    }
+
+    async function requestSelected() {
+        if (!selectedSong) return;
+        requestStatus.textContent = `> Requesting ${selectedSong}...`;
+        try {
+            const res = await fetch('/api/request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ song: selectedSong })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                requestStatus.textContent = `> Queued: ${selectedSong} (${data.response.split('\n')[0]})`;
+                const selectedLi = document.querySelector('.song-list li.selected');
+                if (selectedLi) selectedLi.classList.add('requested');
+                requestBtn.disabled = true;
+                selectedSong = null;
+            } else {
+                requestStatus.textContent = `> ERROR: ${data.error}`;
+            }
+        } catch (err) {
+            requestStatus.textContent = `> NETWORK ERROR: ${err.message}`;
+        }
+    }
+
+document.getElementById('upload-btn').addEventListener('click', async () => {
+    const artistInput = document.getElementById('upload-artist');
+    const titleInput = document.getElementById('upload-title');
+    const fileInput = document.getElementById('file-input');
+    const file = fileInput.files[0];
+    
+    const artist = artistInput.value.trim();
+    const title = titleInput.value.trim();
+    
+    if (!artist || !title) return alert('Artist and title are required');
+    if (!file) return alert('Choose a file');
+    
+    uploadStatus.textContent = '> Uploading...';
+    
+    const formData = new FormData();
+    formData.append('track', file);
+    formData.append('artist', artist);
+    formData.append('title', title);
+    
+    try {
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (res.ok) {
+            uploadStatus.textContent = `> Uploaded: ${data.filename} (queued)`;
+            artistInput.value = '';
+            titleInput.value = '';
+            fileInput.value = '';
+            loadSongs(searchInput.value); // refresh list
+        } else {
+            uploadStatus.textContent = `> ERROR: ${data.error}`;
+        }
+    } catch (err) {
+        uploadStatus.textContent = `> NETWORK ERROR: ${err.message}`;
+    }
+});
+
+    async function updateNowPlaying() {
+        try {
+            const res = await fetch('/api/now-playing');
+            const data = await res.json();
+        let displayText = '';
+        if (data.rawTitle && data.rawTitle !== 'Stream offline') {
+            const parsed = parseFilename(data.rawTitle);
+            displayText = `${parsed.artist} - ${parsed.title}`;
+        } else {
+            displayText = 'Stream offline';
+        }
+        nowPlayingDiv.innerHTML = `> NOW: ${displayText} | Listeners: ${data.listeners}`;
+        } catch (e) {
+            nowPlayingDiv.innerHTML = '> NOW: --';
+        }
+    }
+
+    searchInput.addEventListener('input', (e) => loadSongs(e.target.value));
+    requestBtn.addEventListener('click', requestSelected);
+    refreshBtn.addEventListener('click', () => loadSongs(searchInput.value));
+
+    loadSongs();
+    updateNowPlaying();
+    setInterval(updateNowPlaying, 15000);
+</script>
+</body>
+</html>

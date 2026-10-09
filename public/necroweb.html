@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSH Club Necroweb</title>
+    <link rel="stylesheet" href="css/indexpage.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="resources/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="resources/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="resources/favicon-16x16.png">
+    <link rel="manifest" href="resources/site.webmanifest">
+    <script src="/js/theme.js"></script>
+    <style>
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination button {
+            padding: 6px 12px;
+            font-size: 0.85em;
+            min-width: 36px;
+        }
+
+        .pagination button.active {
+            background-color: var(--color-accent);
+            color: var(--color-bg);
+            box-shadow: 0 0 10px var(--color-accent);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .pagination .ellipsis {
+            color: var(--color-text-secondary);
+            user-select: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--color-text-secondary);
+            padding: 40px 0;
+            width: 100%;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--color-text-secondary);
+            width: 100%;
+        }
+
+        #threadsContainer {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="nav-bar">
+        <a href="/">Back to the catalog</a>
+    </div>
+
+    <h1>NECROWEB</h1>
+    <p style="margin-bottom: 10px; color: var(--color-text-secondary); font-size: 0.85em;">Archived threads, ordered by last bump.</p>
+    <div id="necroStats" style="font-size: 0.85em; color: var(--color-text-secondary); margin-bottom: 15px;"></div>
+
+    <div id="threadsContainer">
+        <div class="loading">Loading archived threads...</div>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <div class="theme-buttons">
+        <button class="theme-btn" data-theme="green" onclick="setTheme('green')" style="background: #00cc00;" title="Matrix Hacker Green - Classic SSH Club"></button>
+        <button class="theme-btn" data-theme="red" onclick="setTheme('red')" style="background: #ff3232;" title="Critical Error Red"></button>
+        <button class="theme-btn" data-theme="blue" onclick="setTheme('blue')" style="background: #0088ff;" title="Blue Light"></button>
+        <button class="theme-btn" data-theme="amber" onclick="setTheme('amber')" style="background: #ffb000;" title="Amber CRT"></button>
+        <button class="theme-btn" data-theme="synthwave" onclick="setTheme('synthwave')" style="background: linear-gradient(45deg, #ff00ff, #00ffff);" title="Synthwave"></button>
+        <button class="theme-btn" data-theme="mono" onclick="setTheme('mono')" style="background: #ffffff;" title="Monochrome"></button>
+        <button class="theme-btn" data-theme="miku" onclick="setTheme('miku')" style="background: #39c5bb;" title="Miku"></button>
+        <button class="theme-btn" data-theme="dark-academia" onclick="setTheme('dark-academia')" style="background: #5c4a3d;" title="Dark Academia - Ivy League at Midnight"></button>
+        <button class="theme-btn" data-theme="cherryblossom" onclick="setTheme('cherryblossom')" style="background: linear-gradient(45deg, #ffccd5, #d84a75);" title="Cherry Blossom - かわいい~~~"></button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const threadsContainer = document.getElementById('threadsContainer');
+            const paginationEl = document.getElementById('pagination');
+            const statsEl = document.getElementById('necroStats');
+            let totalPages = 1;
+
+            /**
+             * Creates the DOM element for a single thread preview — identical to the index page.
+             */
+            function createThreadElement(thread) {
+                const threadDiv = document.createElement('div');
+                threadDiv.className = 'threadContainer';
+                threadDiv.id = `thread-${thread.threadId}`;
+
+                threadDiv.onclick = (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        window.open(`/thread/${thread.threadId}`, '_blank');
+                    } else {
+                        window.location.href = `/thread/${thread.threadId}`;
+                    }
+                };
+
+                const threadBodyDiv = document.createElement('div');
+                threadBodyDiv.className = 'threadBody';
+
+                // Media thumbnail
+                if (thread.thumbnailUrl) {
+                    const img = document.createElement('img');
+                    img.src = thread.thumbnailUrl;
+                    img.className = 'messageMediaThumbnail';
+                    threadBodyDiv.appendChild(img);
+                } else if (thread.mediaUrl && thread.mediaUrl.match(/\.(mp4|webm)$/)) {
+                    const img = document.createElement('img');
+                    img.src = 'resources/default_video_thumbnail.jpg';
+                    img.className = 'messageMediaThumbnail';
+                    threadBodyDiv.appendChild(img);
+                }
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'message';
+                textDiv.textContent = thread.text;
+                threadBodyDiv.appendChild(textDiv);
+
+                const postCountDiv = document.createElement('div');
+                postCountDiv.className = 'postCount';
+                postCountDiv.textContent = `Posts: ${thread.messageCount || 1}`;
+
+                const metadataDiv = document.createElement('div');
+                metadataDiv.className = 'messageMetadata';
+                metadataDiv.appendChild(postCountDiv);
+
+                threadDiv.appendChild(threadBodyDiv);
+                threadDiv.appendChild(metadataDiv);
+
+                return threadDiv;
+            }
+
+            async function loadPage(page) {
+                threadsContainer.innerHTML = '<div class="loading">Loading archived threads...</div>';
+                try {
+                    const res = await fetch(`/api/archived-threads?page=${page}`);
+                    if (!res.ok) throw new Error('Failed to load threads');
+                    const data = await res.json();
+                    totalPages = data.totalPages;
+                    statsEl.textContent = `${data.total} archived threads · Page ${data.page} of ${data.totalPages}`;
+
+                    threadsContainer.innerHTML = '';
+                    if (data.threads.length === 0) {
+                        threadsContainer.innerHTML = '<div class="empty-state">No archived threads found.</div>';
+                    } else {
+                        data.threads.forEach(thread => {
+                            threadsContainer.appendChild(createThreadElement(thread));
+                        });
+                    }
+
+                    renderPagination(data.page, data.totalPages);
+                } catch (err) {
+                    threadsContainer.innerHTML = `<div class="empty-state">Error loading threads: ${err.message}</div>`;
+                }
+            }
+
+            function renderPagination(current, total) {
+                paginationEl.innerHTML = '';
+                if (total <= 1) return;
+
+                const prevBtn = document.createElement('button');
+                prevBtn.textContent = '« Prev';
+                prevBtn.disabled = current === 1;
+                prevBtn.addEventListener('click', () => loadPage(current - 1));
+                paginationEl.appendChild(prevBtn);
+
+                const pages = getPaginationRange(current, total);
+                pages.forEach(p => {
+                    if (p === '...') {
+                        const ellipsis = document.createElement('span');
+                        ellipsis.className = 'ellipsis';
+                        ellipsis.textContent = '...';
+                        paginationEl.appendChild(ellipsis);
+                    } else {
+                        const btn = document.createElement('button');
+                        btn.textContent = p;
+                        if (p === current) btn.classList.add('active');
+                        btn.addEventListener('click', () => loadPage(p));
+                        paginationEl.appendChild(btn);
+                    }
+                });
+
+                const nextBtn = document.createElement('button');
+                nextBtn.textContent = 'Next »';
+                nextBtn.disabled = current === total;
+                nextBtn.addEventListener('click', () => loadPage(current + 1));
+                paginationEl.appendChild(nextBtn);
+            }
+
+            function getPaginationRange(current, total) {
+                if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+                if (current <= 3) return [1, 2, 3, 4, '...', total];
+                if (current >= total - 2) return [1, '...', total - 3, total - 2, total - 1, total];
+                return [1, '...', current - 1, current, current + 1, '...', total];
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const page = parseInt(params.get('page'), 10) || 1;
+            loadPage(page);
+        });
+    </script>
+</body>
+
+</html>

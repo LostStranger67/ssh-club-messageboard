@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SSH Club Home</title>
+    <link rel="stylesheet" href="css/indexpage.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="resources/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="resources/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="resources/favicon-16x16.png">
+    <link rel="manifest" href="resources/site.webmanifest">
+    <script src="/js/theme.js"></script>
+</head>
+
+<body>
+    <div class="banner-container">
+        <pre id="ascii-banner">
+███████╗███████╗██╗  ██╗       ██████╗██╗     ██╗   ██╗██████╗     ██████╗ ██████╗  ██████╗ 
+██╔════╝██╔════╝██║  ██║      ██╔════╝██║     ██║   ██║██╔══██╗   ██╔═══██╗██╔══██╗██╔════╝ 
+███████╗███████╗███████║█████╗██║     ██║     ██║   ██║██████╔╝   ██║   ██║██████╔╝██║  ███╗
+╚════██║╚════██║██╔══██║╚════╝██║     ██║     ██║   ██║██╔══██╗   ██║   ██║██╔══██╗██║   ██║
+███████║███████║██║  ██║      ╚██████╗███████╗╚██████╔╝██████╔╝██╗╚██████╔╝██║  ██║╚██████╔╝
+╚══════╝╚══════╝╚═╝  ╚═╝       ╚═════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ 
+        </pre>
+        <pre id="daily-message">
+Cyberpunk is dead.
+        </pre>
+    </div>
+
+    <div class="button-toolbar">
+        <button id="launchRulesBtn">Rules and FAQ</button>
+        <button id="launchWallBtn">Graffiti Wall</button>
+        <button id="launchRadioBtn">Radio</button>
+    </div>
+
+    <div id="formContainer">
+        <div id="formInputContainer">
+            <textarea id="messageInput" rows="2"></textarea>
+            <label for="mediaInput" class="custom-file-upload">
+                <!-- Inline SVG icon for easy styling -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+            </label>
+            <!-- This input is now hidden but functional -->
+            <input type="file" id="mediaInput" accept="image/*,video/*,audio/*" style="display: none;">
+        </div>
+
+        <span id="fileNameDisplay"></span>
+        <div id="formExtras">
+            <div id="signatureStuff">
+                <div>
+                    <label for="signatureInput">Signed by:</label>
+                    <input type="text" id="signatureInput" placeholder="Anonymous"><br>
+                </div>
+                <div>
+                    <label for="secretInput">Signature:</label>
+                    <input type="text" id="secretInput" placeholder="Your signature code"><br>
+                </div>
+            </div>
+            <button id="sendButton">Create Thread</button>
+        </div>
+    </div>
+
+
+    <div id="threadsContainer"></div>
+    <!-- <audio controls src="https://ssh-club.org/stream"></audio> -->
+    <script src="js/indexpage.js"></script>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="theme-buttons">
+                <button class="theme-btn" data-theme="green" onclick="setTheme('green')" style="background: #00cc00;"
+                    title="Matrix Hacker Green - Classic SSH Club"></button>
+                <button class="theme-btn" data-theme="red" onclick="setTheme('red')" style="background: #ff3232;"
+                    title="Critical Error Red - Cyber criminal Edition"></button>
+                <button class="theme-btn" data-theme="blue" onclick="setTheme('blue')" style="background: #0088ff;"
+                    title="Sleep destroying blue light - Color of wine in ancient Greece"></button>
+
+                <!-- New Themes -->
+                <button class="theme-btn" data-theme="amber" onclick="setTheme('amber')" style="background: #ffb000;"
+                    title="Amber CRT - Old School Unix Terminal"></button>
+                <button class="theme-btn" data-theme="synthwave" onclick="setTheme('synthwave')"
+                    style="background: linear-gradient(45deg, #ff00ff, #00ffff);"
+                    title="Programming socks - Neon Cyberpunk"></button>
+                <button class="theme-btn" data-theme="mono" onclick="setTheme('mono')" style="background: #ffffff;"
+                    title="Monochrome - Epic Minimalist"></button>
+                <button class="theme-btn" data-theme="miku" onclick="setTheme('miku')" style="background: #39c5bb;"
+                    title="Miku - SEKAAAAAAIII DEEEE"></button>
+                <button class="theme-btn" data-theme="dark-academia" onclick="setTheme('dark-academia')" style="background: #5c4a3d;"
+                    title="Dark Academia - Ivy League at Midnight"></button>
+                <button class="theme-btn" data-theme="cherryblossom" onclick="setTheme('cherryblossom')"
+                    style="background: linear-gradient(45deg, #ffccd5, #d84a75);"
+                    title="Cherry Blossom - かわいい~~~"></button>
+                <button class="theme-btn" data-theme="cyberdeck" onclick="setTheme('cyberdeck')"
+                    style="background: #00e5ff;"
+                    title="Cyberdeck OS - 90s Retro Workstation"></button>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

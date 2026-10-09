@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /
+
+# Allow only the public paths
+Allow: /
+Allow: /thread/
+Allow: /radio
+Allow: /attributions.html
+
+# No sitemap yet
+#Sitemap: https://ssh-club.org/sitemap.xml

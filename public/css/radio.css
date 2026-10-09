@@ -1,0 +1,411 @@
+/* radio.css - Styles specific to the radio page */
+
+@import url('master.css');
+
+/* ---------------------------------------------
+   1. Full‑height layout (unchanged logic)
+--------------------------------------------- */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    /* Allow horizontal bleed for the marquee, but prevent vertical scroll */
+    overflow-x: visible;
+    overflow-y: hidden;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+}
+
+/* ---------------------------------------------
+   2. Main container – vertical flex column
+--------------------------------------------- */
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: normal;
+    letter-spacing: -2px;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    border-bottom: 3px solid var(--color-accent-bright);
+    display: inline-block;
+}
+
+.logo-slash {
+    text-decoration: line-through;
+    text-decoration-color: var(--color-error);
+    text-decoration-thickness: 4px;
+}
+
+/* ---------------------------------------------
+   3. Two‑column row fills remaining height
+--------------------------------------------- */
+.layout {
+    flex: 1 1 0%;
+    overflow: hidden;
+    display: flex;
+    gap: 2rem;
+}
+
+.player-section {
+    flex: 0 0 300px;
+    overflow-y: auto;
+}
+
+.catalog-section {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---------------------------------------------
+   4. Catalog panel is a flex column
+--------------------------------------------- */
+.catalog-section > .panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin-bottom: 0;
+    overflow: hidden;
+}
+
+.search-box {
+    margin-bottom: 1rem;
+}
+
+.button-group {
+    margin-top: 1rem;
+    display: flex;
+    gap: 10px;
+}
+
+.status-bar {
+    margin-top: 1rem;
+    padding: 10px;
+    background: var(--color-bg-subtle-glow);
+    border: 1px solid var(--color-accent-bright);
+    color: var(--color-accent-bright);
+}
+
+/* ---------------------------------------------
+   5. Dynamic scrollable song list
+--------------------------------------------- */
+.song-list-container {
+    flex: 1 1 0%;
+    min-height: 0;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-subtle-glow);
+}
+
+.song-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.song-list li {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--color-secondary-border);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+}
+
+.song-list li:hover {
+    background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.song-list li.selected {
+    background: var(--color-accent);
+    color: var(--color-bg);
+}
+
+.song-list li.requested {
+    opacity: 0.5;
+    pointer-events: none;
+    text-decoration: line-through;
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    background: var(--color-secondary-border);
+    color: var(--color-text-primary);
+}
+
+.badge.original {
+    background: color-mix(in srgb, var(--color-signature) 25%, var(--color-bg));
+    color: var(--color-signature);
+}
+
+.badge.uploaded {
+    background: color-mix(in srgb, var(--color-accent) 25%, var(--color-bg));
+    color: var(--color-accent-bright);
+}
+
+.song-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.song-tags {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* License label next to the source badge: dimmed but readable */
+.license {
+    font-size: 0.7rem;
+    opacity: 0.65;
+}
+
+.license a {
+    color: inherit;
+    text-decoration: underline dotted;
+}
+
+.license a:hover {
+    opacity: 1;
+    color: var(--color-accent-bright);
+}
+
+/* "Retrieved from" line in the selected-song status pane */
+.selected-meta {
+    opacity: 0.75;
+    font-size: 0.85em;
+}
+
+.selected-meta a {
+    color: inherit;
+}
+
+/* Upload form license dropdown */
+.license-select {
+    width: 100%;
+    margin-bottom: 8px;
+    background: var(--color-bg);
+    color: inherit;
+    border: var(--border-width, 1px) solid var(--color-secondary-border);
+    padding: 6px;
+    font-family: inherit;
+}
+
+/* ---------------------------------------------
+   6. Player section styles (unchanged)
+--------------------------------------------- */
+.panel {
+    border: var(--border-width) solid var(--color-border);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--color-panel-bg);
+}
+
+.panel h2 {
+    margin-top: 0;
+    color: var(--color-accent-bright);
+    font-weight: normal;
+    text-transform: uppercase;
+    font-size: 1.2rem;
+}
+
+audio {
+    display: none;
+}
+
+.player-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+#play-visualizer-area {
+    width: 100%;
+    height: 80px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.play-pause-btn {
+    padding: 10px 24px;
+    font-family: var(--font-mono, monospace);
+    font-size: 1rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--color-accent-bright);
+    color: var(--color-bg, #000);
+    border: 2px solid var(--color-accent-bright);
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.play-pause-btn:hover {
+    opacity: 0.8;
+}
+
+.play-pause-btn:active {
+    opacity: 0.6;
+}
+
+.visualizer-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+}
+
+.volume-slider {
+    width: 120px;
+    cursor: pointer;
+    background: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+    box-shadow: none;
+}
+
+.volume-slider:focus,
+.volume-slider:active {
+    outline: none;
+    box-shadow: none;
+}
+
+.volume-slider:focus::-webkit-slider-thumb {
+    outline: 2px solid var(--color-accent);
+}
+
+.volume-slider::-webkit-slider-runnable-track {
+    height: 4px;
+    background: var(--color-accent-bright);
+    border-radius: 2px;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--color-accent-bright);
+    border-radius: 50%;
+    margin-top: -5px;
+}
+
+.volume-slider::-moz-range-track {
+    height: 4px;
+    background: var(--color-accent-bright);
+    border-radius: 2px;
+    border: none;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: var(--color-accent-bright);
+    border-radius: 50%;
+    border: none;
+}
+
+.full-width {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+#file-input {
+    position: absolute;
+    opacity: 0;
+    width: 0.1px;
+    height: 0.1px;
+    overflow: hidden;
+}
+
+.file-label {
+    display: inline-block;
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+
+/* ---------------------------------------------
+   7. FULL‑WIDTH DOCKET MARQUEE
+   (breaks out of the centered container)
+--------------------------------------------- */
+.docket-section {
+    margin-top: 2rem;
+    border-top: var(--border-width) solid var(--color-border);
+    /* Stretch to the full viewport width, regardless of container */
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    box-sizing: border-box;
+}
+
+.docket-marquee {
+    padding: 6px 0;
+    background: var(--color-bg);
+    overflow: hidden;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--color-secondary-border);
+}
+
+.legalized-marquee {
+    color: var(--color-accent-bright);
+}
+
+.criminalized-marquee {
+    color: var(--color-error);
+}
+
+.docket-scroll {
+    display: inline-block;
+    animation: scroll-docket 50s linear infinite;
+    font-size: 0.85rem;
+}
+
+.docket-scroll:hover {
+    animation-play-state: paused;
+}
+
+@keyframes scroll-docket {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.legalized-marquee .docket-scroll {
+    color: var(--color-accent-bright);
+}
+
+.criminalized-marquee .docket-scroll {
+    color: var(--color-error);
+    text-decoration: line-through;
+    text-decoration-color: var(--color-error);
+}

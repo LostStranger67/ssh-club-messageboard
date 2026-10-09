@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - DoNotEn.tr</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/resources/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/resources/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/resources/favicon-16x16.png">
+    <link rel="stylesheet" href="/css/master.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <script src="/js/theme.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>ADMIN_PANEL</h1>
+
+    <!-- Login Section -->
+    <div id="login-section" class="panel">
+        <h2>> AUTHENTICATE</h2>
+        <input type="password" id="admin-password" placeholder="Password" class="full-width">
+        <button id="login-btn">LOGIN</button>
+        <div id="login-status" class="status-bar"></div>
+    </div>
+
+    <!-- Main Admin Content (hidden until login) -->
+    <div id="admin-content" style="display:none;">
+        <!-- Song Management -->
+        <div class="panel">
+            <h2>> SONG MANAGEMENT (<span id="admin-song-count">0</span>)</h2>
+            <input type="text" id="admin-search" placeholder="SEARCH..." class="full-width search-box">
+            <div class="song-list-container">
+                <ul class="song-list" id="admin-song-list"></ul>
+            </div>
+        </div>
+
+        <!-- Jingle Upload -->
+        <div class="panel">
+            <h2>> JINGLE UPLOAD (ADMIN ONLY)</h2>
+            <label for="jingle-file" class="file-label">CHOOSE JINGLE</label>
+            <input type="file" id="jingle-file" accept=".mp3,audio/mpeg">
+            <button id="upload-jingle-btn">UPLOAD TO JINGLES</button>
+            <div id="jingle-status" class="status-bar">> Ready</div>
+        </div>
+
+        <!-- Legislative Docket Management -->
+        <div class="panel">
+            <h2>> LEGISLATIVE DOCKET</h2>
+            <div class="docket-form">
+                <input type="text" id="new-law-text" placeholder="New law..." class="full-width">
+                <select id="new-law-status">
+                    <option value="legalized">LEGALIZE</option>
+                    <option value="criminalized">CRIMINALIZE</option>
+                </select>
+                <button id="add-law-btn">ENACT</button>
+            </div>
+            <div class="song-list-container docket-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr><th>ID</th><th>Law</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="docket-list"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- News Marquee Management (graffiti wall) -->
+        <div class="panel">
+            <div class="news-panel-header">
+                <h2>> NEWS MARQUEE (GRAFFITI WALL)</h2>
+                <div class="news-panel-controls">
+                    <div id="news-palette-bar" class="news-palette-bar"></div>
+                    <button type="button" id="news-blink-btn" class="news-blink-btn">BLINK ENABLE</button>
+                </div>
+            </div>
+            <div id="news-live-preview-container" class="news-live-preview" hidden>
+                <div id="news-live-preview" class="news-live-preview-text"></div>
+            </div>
+            <div class="docket-form">
+                <input type="text" id="new-news-text" placeholder="News for the wall... (select text, then pick a color or BLINK to format it)" class="full-width">
+                <button id="add-news-btn">PUBLISH</button>
+            </div>
+            <div class="song-list-container docket-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr><th>ID</th><th>News</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="news-list"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Wall Export -->
+        <div class="panel">
+            <h2>> WALL EXPORT</h2>
+            <p class="panel-desc">Composites all wall layers (grid + static + blinking) into a 2-frame animated GIF at 1 fps. Blinking pixels animate exactly as on the live wall.</p>
+            <button id="export-wall-btn">EXPORT WALL (GIF)</button>
+            <div id="export-wall-status" class="status-bar"></div>
+        </div>
+
+        <!-- Joke Features (Optional) -->
+        <div class="panel">
+            <h2>> EXPERIMENTAL_FEATURES</h2>
+            <button id="legalize-everything-btn">Legalize Everything</button>
+            <div id="joke-output" class="status-bar"></div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/newsformat.js"></script>
+<script src="/js/admin.js"></script>
+<script src="/js/wall-export.js"></script>
+</body>
+</html>

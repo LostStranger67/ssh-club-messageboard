@@ -1,0 +1,329 @@
+/*
+================================================================
+|                                                              |
+|                  -- The Wall Stylesheet --                   |
+|           Extends SSH Club Theme for Graffiti                |
+|                                                              |
+================================================================
+*/
+
+/*
+================================================================
+  0. PAGE FRAME
+  The page itself never scrolls. The wall lives in its own inner
+  scroll window (.wall-scroll), so the header zone (title, back link,
+  coords, palette) stays put like a fixed app frame.
+================================================================
+*/
+body {
+    overflow: hidden;
+    /* 100vh first for old browsers; dvh second so phones with dynamic URL
+       bars don't leave the bottom of the page in an unreachable zone */
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-bg);
+    display: flex;
+    flex-direction: column;
+}
+
+/*
+================================================================
+  1. HEADER ZONE (The Pinned Chrome)
+  One compact row instead of five stacked bars: the title and the
+  back link on the left, the coords and the 4x2 palette on the
+  right. Nothing here ever moves when the wall scrolls.
+================================================================
+*/
+.wall-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 20px;
+    background-color: var(--color-bg);
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--color-secondary-border);
+}
+
+.wall-header h1 {
+    font-size: 1.4rem;
+    color: var(--color-accent);
+    text-shadow: 0 0 5px var(--color-accent);
+    margin: 0 0 4px 0;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    line-height: 1.2;
+}
+
+.back-link {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: var(--color-accent-bright);
+    text-shadow: 0 0 5px var(--color-accent);
+}
+
+.wall-header-right {
+    /* margin-left:auto keeps the block pinned right even when it
+       wraps onto its own line on narrow screens. Coords and the
+       palette now sit side by side on a single horizontal line. */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+}
+
+.coords-line {
+    color: var(--color-text-secondary);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.coords-line span {
+    color: var(--color-accent);
+}
+
+/*
+================================================================
+  2. THE WALL CONTAINER
+================================================================
+*/
+.container {
+    width: 100%;
+    flex: 1;
+    min-height: 0; /* let the flex column shrink so the wall window scrolls */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* The scroll window: the ONLY part of the page that scrolls. */
+.wall-scroll {
+    align-self: stretch;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+#wall-container {
+    position: relative;
+    /* Dimensions match Server Config (200x100) */
+    width: 300ch;  
+    height: 150em; 
+    
+    /* Near-black panel with a whisper of the theme accent (like the green
+       theme's rgb(15,15,0) background) so the neon palette reads the
+       same on every theme. Plain near-black fallback first for browsers
+       without color-mix(). */
+    background-color: #050505;
+    background-color: color-mix(in srgb, var(--color-accent) 6%, black);
+    border: var(--border-width) solid var(--color-accent);
+    
+    font-family: var(--font-family);
+    line-height: 1em;
+    font-size: 15px; 
+    
+    /* NO white-space: pre here — the wall has no flowing text anymore, and
+       pre would turn the HTML indentation into phantom grid rows that push
+       the canvas down (the cursor/selection are absolute, the canvas is the
+       only in-flow child) */
+    
+    cursor: text;
+    user-select: none;
+    overflow: hidden; 
+    
+    box-shadow: 0 0 15px color-mix(in srgb, var(--color-accent) 25%, transparent);
+    
+    /* auto margins: centered when the screen is bigger than the wall in
+       either direction, flush and fully scrollable when it isn't */
+    margin: auto;
+
+    /* The grid itself is drawn ON the canvas (same cell math), because a
+       CSS 1ch/1em gradient and the border-box-subtracted canvas cells are
+       two different rulers that drift up to 2px apart */
+}
+
+/* Transparent bitmap layers: the wall is three stacked canvases —
+   #wall-grid (grid lines), #wall-canvas (static glyphs), #wall-blink
+   (blinking glyphs) — so scrolling is a cheap bitmap move instead of
+   repainting thousands of DOM nodes. Absolutely positioned so HTML
+   whitespace can never shift them in flow. top/left longhands (not the
+   `inset` shorthand) because the office laptop's browser predates it; their
+   rendered size is set explicitly in JS (see resizeCanvas) in CSS px.
+   The #cursor / .selection-box overlays come after the canvases in the DOM,
+   so they stay on top. */
+#wall-grid,
+#wall-canvas,
+#wall-blink {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/*
+================================================================
+  3. COLOR PALETTE
+================================================================
+*/
+#palette-bar {
+    display: grid;
+    grid-template-columns: repeat(8, 22px);
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.palette-btn {
+    box-sizing: border-box;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    padding: 0;
+    border: 2px solid var(--color-secondary-border);
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: block;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.palette-btn:hover {
+    transform: none;
+    filter: brightness(1.2);
+}
+
+.palette-btn.selected {
+    transform: none;
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 8px currentColor;
+}
+
+/*
+================================================================
+  4. CURSOR & SELECTION (the glyphs themselves are canvas-drawn;
+     see #wall-canvas above — the old .char-cell / .blink-char
+     DOM-span system was replaced by the sprite-canvas renderer)
+================================================================
+*/
+#cursor {
+    position: absolute;
+    width: 1ch;
+    height: 1em;
+    background-color: var(--color-accent-bright);
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 100;
+    animation: cursor-blink 1s step-end infinite;
+    box-shadow: 0 0 8px var(--color-accent-bright);
+}
+
+.selection-box {
+    opacity: 0.3;
+    position: absolute;
+    background-color: var(--color-accent-bright);
+    border: 1px solid var(--color-secondary-border);
+    pointer-events: none; /* Allows clicking "through" the box */
+    z-index: 50;          /* Sits above text but below cursor */
+    display: none;        /* Hidden by default */
+}
+
+@keyframes cursor-blink {
+    0%, 100% { opacity: 0.9; }
+    50% { opacity: 0; }
+}
+
+/*
+================================================================
+  NEWS MARQUEE (entries managed from the radio admin page)
+================================================================
+*/
+/* The marquee is pinned chrome around the scroll window, same as the
+   header zone above. Slightly darker than the page bg so the neon
+   glow of the ticker has contrast to bloom against. */
+.news-marquee {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--color-secondary-border);
+    background-color: #000;
+    background-color: color-mix(in srgb, var(--color-bg) 75%, black);
+    flex-shrink: 0;
+}
+
+.news-scroll {
+    display: inline-block;
+    /* Duration is set from JS based on rendered width (~40px/s); 120s fallback */
+    animation: scroll-news 120s linear infinite;
+    font-size: 1rem;
+    /* Signature accent, pushed brighter, with a layered neon halo:
+       tight core glow, mid bloom, wide soft falloff */
+    color: var(--color-signature);
+    filter: brightness(1.3) saturate(1.2);
+    text-shadow:
+        0 0 2px currentColor,
+        0 0 6px currentColor,
+        0 0 14px currentColor,
+        0 0 26px currentColor;
+}
+
+.news-scroll:hover {
+    animation-play-state: paused;
+}
+
+/* Word-level blink: admin can mark words in news entries with [blink] tags,
+   which NewsFormat converts to these spans */
+.news-scroll .blink {
+    animation: news-blink 1s step-end infinite;
+}
+
+@keyframes news-blink {
+    0%, 100% { opacity: 1; filter: brightness(1.4); }
+    50% { opacity: 0; filter: none; }
+}
+
+@keyframes scroll-news {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/*
+================================================================
+  5. SCROLLBARS
+================================================================
+*/
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+::-webkit-scrollbar-track {
+    background: var(--color-bg);
+    border: 1px solid var(--color-secondary-border);
+}
+::-webkit-scrollbar-thumb {
+    background-color: var(--color-accent);
+    border: 1px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-accent-bright);
+}
+::-webkit-scrollbar-corner {
+    background: var(--color-bg);
+}

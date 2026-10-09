@@ -1,0 +1,56 @@
+# dependencies
+node_modules/
+radio/node_modules/
+
+# environment & secrets — never commit
+.env
+radio/.env
+
+# databases
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# user content & uploads — server-local only
+public/uploads/
+upload_tmp/
+deleted-user-content/
+radio/uploads/
+radio/normalized/
+radio/music/
+radio/jingles/
+radio/placeholders/
+radio/ride
+
+# runtime state & exports
+threads/
+thread_export/
+nohup.out
+server-log.txt
+*.log
+*.pid
+*.bak
+.playwright-mcp/
+
+# python caches
+__pycache__/
+
+# local tooling / notes (not part of the public project)
+chatbot/
+SEO_STRATEGY.md
+
+# machine configuration — never public (users, paths, hosts)
+systemd/
+
+# machine configuration is already above; one-off/local tooling too —
+# only the two real admin utilities (admin_delete.js, messageboard_tool.py)
+# are tracked; everything else in helper_scripts is server-local history
+helper_scripts/*
+!helper_scripts/admin_delete.js
+!helper_scripts/messageboard_tool.py
+server.sh
+credits.json
+radio/init-db.js
+playlist_metadata.json
+radio/tools/

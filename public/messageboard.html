@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SSH Club Messageboard</title>
+    <link rel="stylesheet" href="/css/messageboard.css">
+    <script src="/js/messageboard.js" defer></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/resources/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/resources/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/resources/favicon-16x16.png">
+    <script src="/js/theme.js"></script>
+    <link rel="manifest" href="/resources/site.webmanifest">
+</head>
+
+<body>
+    <div id="mediaDisplayModal" class="modal">
+        <img class="modal-content modal-media" id="modalImage">
+        <video class="modal-content modal-media" id="modalVideo" controls></video>
+        <audio class="modal-content" id="modalAudio" controls></audio>
+        <br>
+        <button class="modal-content" id="modalClose">Close</button>
+
+    </div>
+
+    <div id="messagesWrapper"></div>
+
+    <div id="formContainer">
+        <div id="formInputContainer">
+            <textarea id="messageInput" rows="2"></textarea>
+            <label for="mediaInput" class="custom-file-upload">
+                <!-- Inline SVG icon for easy styling -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+            </label>
+            <!-- This input is now hidden but functional -->
+            <input type="file" id="mediaInput" accept="image/*,video/*,audio/*" style="display: none;">
+        </div>
+
+        <span id="fileNameDisplay"></span>
+        <div id="formExtras">
+            <div id="signatureStuff">
+                <div>
+                    <label for="signatureInput">Signed by:</label>
+                    <input type="text" id="signatureInput" placeholder="Anonymous"><br>
+                </div>
+                <div>
+                    <label for="secretInput">Signature:</label>
+                    <input type="text" id="secretInput" placeholder="Your signature code"><br>
+                </div>
+            </div>
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+    <a href="/">Back to the catalog</a>
+</body>
+
+</html>

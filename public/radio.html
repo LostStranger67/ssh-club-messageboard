@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DONOTEN.TR</title>
+    <link rel="stylesheet" href="/css/master.css">
+    <link rel="stylesheet" href="/css/radio.css">
+    <script src="/js/theme.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/resources/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/resources/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/resources/favicon-16x16.png">
+    
+</head>
+
+<body>
+    <div class="container">
+        <h1>DONOTEN.TR</h1>
+
+        <div class="layout">
+            <div class="player-section">
+                <div class="panel">
+                    <h2>> PLAYER</h2>
+                    <div class="player-controls">
+                        <div id="play-visualizer-area">
+                            <button id="play-pause-btn" class="play-pause-btn">PLAY</button>
+                            <canvas id="visualizer" class="visualizer-canvas"></canvas>
+                        </div>
+                        <div class="volume-control">
+                            <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="75">
+                        </div>
+                    </div>
+                    <div id="now-playing" class="status-bar">> LOADING...</div>
+                </div>
+                <div class="panel">
+                    <h2>> UPLOAD</h2>
+                    <input type="text" id="upload-artist" placeholder="ARTIST" class="full-width">
+                    <input type="text" id="upload-title" placeholder="TITLE" class="full-width">
+                    <select id="upload-license" class="full-width license-select" required>
+                        <option value="" disabled selected>LICENSE (REQUIRED)</option>
+                        <option value="CC-BY-4.0">CC BY 4.0</option>
+                        <option value="CC-BY-SA-4.0">CC BY-SA 4.0</option>
+                        <option value="CC-BY-NC-4.0">CC BY-NC 4.0</option>
+                        <option value="CC-BY-NC-SA-4.0">CC BY-NC-SA 4.0</option>
+                        <option value="CC0-1.0">CC0 1.0 (Public Domain Dedication)</option>
+                        <option value="DIRECT_CONSENT">I made this song and I grant permission to ssh-club radio to broadcast it</option>
+                    </select>
+                    <input type="url" id="upload-source" placeholder="RETRIEVED FROM / SOURCE URL (optional)" class="full-width" value="https://ssh-club.org/radio">
+                    <label for="file-input" class="file-label">CHOOSE FILE</label>
+                    <input type="file" id="file-input" accept=".mp3,audio/mpeg">
+                    <button id="upload-btn">UPLOAD</button>
+                    <div id="upload-status" class="status-bar">> Ready</div>
+                </div>
+            </div>
+
+            <div class="catalog-section">
+                <div class="panel">
+                    <h2>> CATALOG (<span id="song-count">0</span> tracks)</h2>
+                    <input type="text" id="search-input" class="search-box full-width" placeholder="SEARCH...">
+                    <div class="song-list-container">
+                        <ul class="song-list" id="song-list">Loading...</ul>
+                    </div>
+                    <div class="button-group">
+                        <button id="request-selected-btn" disabled>REQUEST SELECTED</button>
+                        <button id="refresh-list-btn">REFRESH</button>
+                    </div>
+                    <div id="request-status" class="status-bar">> Select a song</div>
+                </div>
+            </div>
+        </div>
+        <div class="docket-section">
+            <div class="docket-marquee legalized-marquee">
+                <div class="docket-scroll">
+                    <span id="legalized-docket">✓ Loading legislation...</span>
+                </div>
+            </div>
+            <div class="docket-marquee criminalized-marquee">
+                <div class="docket-scroll">
+                    <span id="criminalized-docket">✗ Loading legislation...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/howler.min.js"></script>
+    <script src="/js/radio.js"></script>
+</body>
+
+</html>

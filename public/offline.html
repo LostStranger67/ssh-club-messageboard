@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>SSH Club — Server Offline</title>
+    <style>
+
+/* offline page - mirrors index.html using rules copied from master.css + indexpage.css
+   (inlined because the origin server that normally serves those files is down) */
+
+/* ===== THEMES ===== */
+/* Green (default – your existing values) */
+:root {
+    --color-bg: rgb(15, 15, 0);
+    --color-text-primary: rgb(0, 220, 0);
+    --color-text-secondary: rgb(70, 100, 70);
+    --color-accent: rgb(0, 200, 0);
+    --color-accent-bright: rgb(0, 240, 0);
+    --color-error: rgb(210, 0, 0);
+    --color-border: rgb(0, 200, 0);
+    --color-secondary-border: rgb(0, 150, 100);
+    --color-signature: rgb(150, 0, 100);
+    --color-bg-subtle-glow: rgb(0, 25, 10);
+    /* Base styles (font, spacing, etc.) */
+    --font-family: 'Fira Code', 'Courier New', monospace;
+    --font-size-base: 16px;
+    --font-size-sm: 14px;
+    --spacing-unit: 10px;
+    --border-radius: 0px;
+    --border-width: 1px;
+    --padding: 10px;
+    --font-size-lg: 16px;
+}
+
+/* GREEN theme (Classic) */
+[data-theme="green"] {
+    --color-bg: rgb(15, 15, 0);
+    --color-text-primary: rgb(0, 220, 0);
+    --color-text-secondary: rgb(70, 100, 70);
+    --color-accent: rgb(0, 200, 0);
+    --color-accent-bright: rgb(0, 240, 0);
+    --color-error: rgb(210, 0, 0);
+    --color-border: rgb(0, 200, 0);
+    --color-secondary-border: rgb(0, 150, 100);
+    --color-signature: rgb(150, 0, 100);
+    --color-bg-subtle-glow: rgb(0, 25, 10);
+}
+
+/* RED theme (Refined for contrast and aesthetic) */
+[data-theme="red"] {
+    --color-bg: rgb(20, 0, 0); /* Darker, true red tint instead of purple */
+    --color-text-primary: rgb(255, 50, 50); /* Brightened for readability */
+    --color-text-secondary: rgb(150, 60, 60);
+    --color-accent: rgb(200, 0, 0);
+    --color-accent-bright: rgb(255, 80, 80);
+    --color-error: rgb(255, 100, 0); /* Orange error for red theme visibility */
+    --color-border: rgb(200, 0, 0);
+    --color-secondary-border: rgb(255, 100, 0); /* Amber accents */
+    --color-signature: rgb(0, 200, 200); /* Cyan signature for contrast */
+    --color-bg-subtle-glow: rgb(40, 0, 0);
+}
+
+/* BLUE theme (Refined to fix low-contrast readability issues) */
+[data-theme="blue"] {
+    --color-bg: rgb(0, 10, 25); /* Deep ocean blue */
+    --color-text-primary: rgb(100, 200, 255); /* CRT Cyan-Blue, much easier to read */
+    --color-text-secondary: rgb(60, 90, 120);
+    --color-accent: rgb(0, 130, 200);
+    --color-accent-bright: rgb(150, 220, 255);
+    --color-error: rgb(255, 50, 50);
+    --color-border: rgb(0, 130, 200);
+    --color-secondary-border: rgb(0, 200, 180); /* Teal accents */
+    --color-signature: rgb(255, 200, 0); /* Gold/yellow signature for contrast */
+    --color-bg-subtle-glow: rgb(0, 20, 40);
+}
+
+/* === NEW THEMES === */
+
+/* AMBER theme (Classic Unix/Terminal aesthetic) */
+[data-theme="amber"] {
+    --color-bg: rgb(20, 10, 0);
+    --color-text-primary: rgb(255, 176, 0);
+    --color-text-secondary: rgb(150, 100, 0);
+    --color-accent: rgb(200, 130, 0);
+    --color-accent-bright: rgb(255, 200, 50);
+    --color-error: rgb(255, 50, 50);
+    --color-border: rgb(200, 130, 0);
+    --color-secondary-border: rgb(255, 80, 0); /* Deep orange */
+    --color-signature: rgb(0, 255, 150); /* Mint green signature */
+    --color-bg-subtle-glow: rgb(40, 20, 0);
+}
+
+/* SYNTHWAVE theme (Neon Cyberpunk vibes) */
+[data-theme="synthwave"] {
+    --color-bg: rgb(15, 5, 25); /* Dark purple */
+    --color-text-primary: rgb(255, 100, 255); /* Hot pink text */
+    --color-text-secondary: rgb(120, 60, 140);
+    --color-accent: rgb(0, 255, 255); /* Cyan accents */
+    --color-accent-bright: rgb(150, 255, 255);
+    --color-error: rgb(255, 200, 0);
+    --color-border: rgb(255, 0, 200);
+    --color-secondary-border: rgb(0, 255, 255);
+    --color-signature: rgb(255, 255, 0); /* Electric yellow */
+    --color-bg-subtle-glow: rgb(40, 0, 60);
+}
+
+/* MONO theme (Minimalist High-Contrast) */
+[data-theme="mono"] {
+    --color-bg: rgb(10, 10, 10); /* Almost black */
+    --color-text-primary: rgb(220, 220, 220); /* Crisp off-white */
+    --color-text-secondary: rgb(100, 100, 100);
+    --color-accent: rgb(180, 180, 180);
+    --color-accent-bright: rgb(255, 255, 255);
+    --color-error: rgb(255, 80, 80);
+    --color-border: rgb(150, 150, 150);
+    --color-secondary-border: rgb(80, 80, 80);
+    --color-signature: rgb(255, 255, 0); /* Classic yellow marker */
+    --color-bg-subtle-glow: rgb(30, 30, 30);
+}
+/* MIKU theme (Hatsune Miku - Vocaloid) */
+[data-theme="miku"] {
+    --color-bg: rgb(10, 20, 25); /* Dark blueish-black */
+    --color-text-primary: rgb(150, 240, 240); /* Light cyan for readability */
+    --color-text-secondary: rgb(80, 120, 130);
+    --color-accent: rgb(57, 197, 187); /* Classic Miku Teal #39C5BB */
+    --color-accent-bright: rgb(120, 255, 240); /* Bright glowing cyan */
+    --color-error: rgb(255, 50, 50);
+    --color-border: rgb(57, 197, 187);
+    --color-secondary-border: rgb(255, 100, 180); /* Hot pink accents (ties/headset) */
+    --color-signature: rgb(255, 0, 150); /* Magenta signature */
+    --color-bg-subtle-glow: rgb(0, 40, 50);
+}
+
+/* DARK ACADEMIA theme (Ivy League library at midnight) */
+[data-theme="dark-academia"] {
+    --color-bg: #1a1612;
+    --color-text-primary: #d4c5a9;
+    --color-text-secondary: #7a6f5f;
+    --color-accent: #e8a84c;
+    --color-accent-bright: #c9a85c;
+    --color-error: #8b4513;
+    --color-border: #5c4a3d;
+    --color-secondary-border: #a65d4a;
+    --color-signature: #7a8b6a;
+    --color-bg-subtle-glow: #2a2420;
+}
+
+/* CHERRY BLOSSOM theme (Soft peach base with vivid cherry sakura accents)
+   Flavor: かわいい~~~ */
+[data-theme="cherryblossom"] {
+    --color-bg: #fde3d8;                 /* Warm peachy-cream background */
+    --color-text-primary: #3d1b24;        /* Deep cherry/plum bark for strong readability */
+    --color-text-secondary: #9c6b76;      /* Muted rose-wood */
+    --color-accent: #d84a75;              /* Vibrant cherry pink */
+    --color-accent-bright: #ff3366;       /* Radiant neon blossom pink */
+    --color-error: #c92a2a;               /* Crisp crimson */
+    --color-border: #f3a6b8;              /* Soft petal pink border */
+    --color-secondary-border: #ffccd5;    /* Pale blossom glow */
+    --color-signature: #6a9955;           /* Fresh matcha leaf green for contrast */
+    --color-bg-subtle-glow: #f6cfc2;      /* Deeper peach highlight glow */
+}
+
+/* CYBERDECK theme (90s Retro Workstation) */
+[data-theme="cyberdeck"] {
+    --color-bg: #151d21;
+    --color-text-primary: #ff9d3b;
+    --color-text-secondary: #00e5ff;
+    --color-accent: #00e5ff;
+    --color-accent-bright: #00ff66;
+    --color-error: #ff3232;
+    --color-border: #00e5ff;
+    --color-secondary-border: #ff7700;
+    --color-signature: #ff9d3b;
+    --color-bg-subtle-glow: #0e1619;
+    --font-family: 'VT323', 'Courier New', monospace;
+
+    /* Cyberdeck-only effect tokens (used by the index page overrides). */
+    --cd-crt: #00ff2b;                 /* ASCII banner phosphor green */
+    --cd-crt-shadow: #005511;          /* banner hard shadow */
+    --cd-crt-glow: rgba(0, 255, 43, 0.4);
+    --cd-card: #121c21;                /* card bg, a touch darker than --color-bg */
+    --cd-shadow-mid: #00a8bd;          /* halftone-offset shadow, near */
+    --cd-shadow-deep: #007788;         /* halftone-offset shadow, far */
+    --cd-motd: #ff8800;                /* MOTD pill */
+    --cd-motd-glow: rgba(255, 136, 0, 0.4);
+}
+
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    padding: calc(var(--spacing-unit) * 2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--color-accent);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-accent-bright);
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent) var(--color-bg);
+}
+
+/* Base form elements */
+input,
+button,
+textarea {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    border: var(--border-width) solid var(--color-border);
+    padding: var(--spacing-unit);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    transition: all 0.2s ease-in-out;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--color-accent-bright);
+    box-shadow: 0 0 8px var(--color-accent);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--color-text-secondary);
+    opacity: 1;
+}
+
+button {
+    background-color: transparent;
+    color: var(--color-accent-bright);
+    border: var(--border-width) solid var(--color-accent);
+    padding: var(--spacing-unit) calc(var(--spacing-unit) * 2);
+    cursor: pointer;
+    text-align: center;
+}
+
+button:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+    box-shadow: 0 0 10px var(--color-accent);
+}
+
+a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--color-accent-bright);
+    text-decoration: underline;
+}
+
+pre {
+    font-family: var(--font-family);
+    white-space: pre;
+    margin: 0;
+    line-height: 1.2;
+}
+
+#ascii-banner {
+    font-family: var(--font-family);
+    font-size: 1.2vw;
+    white-space: pre;
+    color: var(--color-accent-bright);
+    text-shadow: 0 0 5px var(--color-accent-bright);
+    line-height: 1.1;
+    margin: 0;
+    padding: 0;
+}
+
+#daily-message {
+    font-family: var(--font-family);
+    font-size: 1.2vw;
+    white-space: pre;
+    color: var(--color-signature);
+    text-shadow: 0 0 5px var(--color-signature);
+    line-height: 1.1;
+    margin: 10px 0 0 0;
+    padding: 0;
+}
+
+@media (max-width: 768px) {
+    #ascii-banner, #daily-message {
+        font-size: 2.5vw;
+    }
+}
+
+.button-toolbar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Form Container (Create Thread) */
+#formContainer {
+    border: var(--border-width) solid var(--color-accent);
+    padding: calc(var(--spacing-unit));
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-unit));
+}
+
+#formInputContainer
+
+/* ===== CYBERDECK THEME OVERRIDES ===== */
+
+/* ASCII Header & MOTD Pill Badge */
+[data-theme="cyberdeck"] #ascii-banner {
+    color: var(--cd-crt);
+    text-shadow: 2px 2px 0px var(--cd-crt-shadow), 0 0 10px var(--cd-crt-glow);
+    letter-spacing: 2px;
+}
+
+[data-theme="cyberdeck"] #daily-message {
+    display: inline-block;
+    background-color: var(--cd-motd);
+    color: #000000;
+    font-weight: bold;
+    padding: 6px 18px;
+    border-radius: 12px;
+    border: 2px solid #000000;
+    box-shadow: 0 0 10px var(--cd-motd-glow);
+    text-shadow: none;
+    margin: 15px auto 25px auto;
+}
+
+/* Card Grid Layout & Halftone-Offset Shadow */
+
+/* footer theme switcher (same buttons as the index page footer) */
+.site-footer {
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: var(--border-width) solid var(--color-secondary-border);
+    width: 100%;
+    max-width: 800px;
+}
+
+.footer-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-label {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.theme-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.theme-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: var(--border-width) solid var(--color-border);
+    cursor: pointer;
+}
+
+.theme-btn.active {
+    border-color: var(--color-accent-bright);
+    box-shadow: 0 0 8px var(--color-accent);
+}
+
+/* offline status box reuses the form container look */
+#offlineBox .status-line {
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    text-align: center;
+}
+
+#offlineBox .dim { color: var(--color-text-secondary); }
+#offlineBox .err { color: var(--color-error); }
+
+    </style>
+    <script>
+// theme.js – apply theme, store preference, expose setTheme()
+(function() {
+  // The only values master.css defines styles for — anything else falls
+  // back to the default so a typo can't leave the page with no theme vars.
+  const KNOWN_THEMES = [
+    'green', 'red', 'blue', 'amber', 'synthwave',
+    'mono', 'miku', 'dark-academia', 'cherryblossom',
+    'cyberdeck',
+  ];
+
+  // 1. Read stored preference, default to 'green'
+  let stored = localStorage.getItem('theme');
+  if (!stored || !KNOWN_THEMES.includes(stored)) stored = 'green';
+
+  // 2. Apply immediately (before body renders)
+  document.documentElement.setAttribute('data-theme', stored);
+
+  // 3. Expose a global function for the switcher
+  window.setTheme = function(themeName) {
+    if (!themeName || !KNOWN_THEMES.includes(themeName)) return;
+    document.documentElement.setAttribute('data-theme', themeName);
+    localStorage.setItem('theme', themeName);
+    // Also update the dropdown/buttons so they reflect the change
+    updateSwitcherUI(themeName);
+  };
+
+  // 4. Helper to sync the UI with the current theme (called after DOM ready)
+  function updateSwitcherUI(theme) {
+    const select = document.getElementById('themeSelect');
+    if (select) select.value = theme;
+    const btns = document.querySelectorAll('.theme-btn');
+    btns.forEach(btn => btn.classList.toggle('active', btn.dataset.theme === theme));
+  }
+
+  // 5. When DOM is ready, sync UI controls
+  document.addEventListener('DOMContentLoaded', function() {
+    const current = document.documentElement.getAttribute('data-theme') || 'green';
+    updateSwitcherUI(current);
+  });
+})();
+
+    </script>
+</head>
+
+<body>
+    <div class="banner-container">
+        <pre id="ascii-banner">
+███████╗███████╗██╗  ██╗       ██████╗██╗     ██╗   ██╗██████╗     ██████╗ ██████╗  ██████╗ 
+██╔════╝██╔════╝██║  ██║      ██╔════╝██║     ██║   ██║██╔══██╗   ██╔═══██╗██╔══██╗██╔════╝ 
+███████╗███████╗███████║█████╗██║     ██║     ██║   ██║██████╔╝   ██║   ██║██████╔╝██║  ███╗
+╚════██║╚════██║██╔══██║╚════╝██║     ██║     ██║   ██║██╔══██╗   ██║   ██║██╔══██╗██║   ██║
+███████║███████║██║  ██║      ╚██████╗███████╗╚██████╔╝██████╔╝██╗╚██████╔╝██║  ██║╚██████╔╝
+╚══════╝╚══════╝╚═╝  ╚═╝       ╚═════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ 
+    </pre>
+    </div>
+
+    <div class="button-toolbar">
+        <button onclick="location.reload()">&#8635; Check again</button>
+    </div>
+
+    <div id="formContainer">
+        <div id="offlineBox">
+            <div class="status-line dim">ssh-club.org &mdash; reverse proxy: online</div>
+            <div class="status-line err">origin server: offline (503)</div>
+            <div class="status-line dim">The server machine is turned off for now, but it will soon come back!</div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="theme-buttons">
+                <button class="theme-btn" data-theme="green" onclick="setTheme('green')" style="background: #00cc00;"
+                    title="Matrix Hacker Green - Classic SSH Club"></button>
+                <button class="theme-btn" data-theme="red" onclick="setTheme('red')" style="background: #ff3232;"
+                    title="Critical Error Red - Cyber criminal Edition"></button>
+                <button class="theme-btn" data-theme="blue" onclick="setTheme('blue')" style="background: #0088ff;"
+                    title="Sleep destroying blue light - Color of wine in ancient Greece"></button>
+
+                <!-- New Themes -->
+                <button class="theme-btn" data-theme="amber" onclick="setTheme('amber')" style="background: #ffb000;"
+                    title="Amber CRT - Old School Unix Terminal"></button>
+                <button class="theme-btn" data-theme="synthwave" onclick="setTheme('synthwave')"
+                    style="background: linear-gradient(45deg, #ff00ff, #00ffff);"
+                    title="Programming socks - Neon Cyberpunk"></button>
+                <button class="theme-btn" data-theme="mono" onclick="setTheme('mono')" style="background: #ffffff;"
+                    title="Monochrome - Epic Minimalist"></button>
+                <button class="theme-btn" data-theme="miku" onclick="setTheme('miku')" style="background: #39c5bb;"
+                    title="Miku - SEKAAAAAAIII DEEEE"></button>
+                <button class="theme-btn" data-theme="dark-academia" onclick="setTheme('dark-academia')" style="background: #5c4a3d;"
+                    title="Dark Academia - Ivy League at Midnight"></button>
+                <button class="theme-btn" data-theme="cherryblossom" onclick="setTheme('cherryblossom')"
+                    style="background: linear-gradient(45deg, #ffccd5, #d84a75);"
+                    title="Cherry Blossom - かわいい~~~"></button>
+                <button class="theme-btn" data-theme="cyberdeck" onclick="setTheme('cyberdeck')"
+                    style="background: #00e5ff;"
+                    title="Cyberdeck OS - 90s Retro Workstation"></button>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
