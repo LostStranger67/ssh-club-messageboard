@@ -472,10 +472,14 @@ app.post('/api/thread/:threadId/reply', replyLimiter, upload.single("media"), as
         if (Number.isNaN(threadId)) return res.status(400).json({ error: 'Invalid thread ID.' });
         const messageData = await prepareMessageData(req);
 
-        // Archived threads are read-only; replying would silently re-bump them
-        const thread = await dbAsync.get('SELECT isArchived FROM threads WHERE id = ?', [threadId]);
+        // Archived threads stay in the necroweb but remain postable:
+        // isArchived is never changed here, and every live-thread listing
+        // filters isArchived = 0, so a reply only appends to the grave.
+        // (Existence still has to be checked explicitly — foreign keys are
+        // not enforced by this connection, and a message inserted under a
+        // nonexistent thread id would be an orphan.)
+        const thread = await dbAsync.get('SELECT id FROM threads WHERE id = ?', [threadId]);
         if (!thread) return res.status(404).json({ error: 'Thread not found.' });
-        if (thread.isArchived) return res.status(400).json({ error: 'This thread is archived.' });
 
         const messageId = await withTransaction(async () => {
             const messageResult = await dbAsync.run(
@@ -580,7 +584,7 @@ app.get('/thread/:threadId', (req, res) => {
         }
         // If 'row' is undefined, no thread was found.
         if (!row) {
-            return res.status(404).send('Thread not found or has been archived.');
+            return res.status(404).send('Thread not found.');
         }
 
         // If the thread exists, send the HTML file.
