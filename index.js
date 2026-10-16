@@ -225,7 +225,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 // global parser so it wins for this path (body-parser skips paths it already
 // parsed, so ordering here is what makes the limit apply).
 app.use('/api/graffiti', express.json({ limit: GRAFFITI_BODY_LIMIT }));
-app.use(express.json());
+// The /radio/api relay must receive UNTOUCHED request bodies: if the global
+// JSON parser consumes them first, the proxy waits forever for a stream that
+// was already read (POSTs hang, radio logs "request aborted"). Skip the
+// parser for radio paths; everything else is parsed as before.
+const boardJsonParser = express.json();
+app.use((req, res, next) =>
+    (req.path === '/radio/api' || req.path.startsWith('/radio/api/'))
+        ? next()
+        : boardJsonParser(req, res, next)
+);
 
 function generateTripcode(secret) {
     const fullHash = crypto.createHash('sha256').update(String(secret ?? '').trim() + SALT).digest('base64url');
@@ -235,7 +244,11 @@ function generateTripcode(secret) {
 app.use('/radio/api', createProxyMiddleware({
     target: 'http://127.0.0.1:3456', // The radio backend
     changeOrigin: true,
-    pathRewrite: { '^/radio/api': '/api' }, // Strip /radio prefix
+    // When mounted with app.use('/radio/api', ...), Express strips the mount
+    // prefix before the middleware runs: the URL to rewrite is '/now-playing',
+    // not '/radio/api/now-playing'. (hpm 4.x behavior; the old '^/radio/api'
+    // rule no longer matched and forwarded '/now-playing' -> 404.)
+    pathRewrite: { '^/': '/api/' },
     on: {
         // Forward the REAL client IP (resolved from the socket — trust proxy
         // is off) to the radio backend, which trusts only loopback peers and
