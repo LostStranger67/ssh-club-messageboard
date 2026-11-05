@@ -1,0 +1,479 @@
+/* mobile.css - Mobile usability layer for SSH Club
+   ------------------------------------------------------------------
+   This site is desktop-first. Nothing in this file applies above 768px,
+   so the desktop experience is byte-for-byte unchanged. Every rule here
+   lives inside a max-width media query and only overrides layout that
+   breaks on small screens (horizontal overflow, unreachable content,
+   tap targets that are too small to hit).
+
+   Load order matters: this must come AFTER the page's own stylesheet so
+   its overrides win at equal specificity.
+
+   Breakpoints:
+     768px - tablets and large phones (layout starts to squeeze)
+     480px - phones (single column, full-width controls)
+   ------------------------------------------------------------------ */
+
+/* ==================================================================
+   1. SHARED / ALL PAGES
+   ================================================================== */
+
+@media (max-width: 768px) {
+
+    /* iOS Safari zooms the whole page when a focused input has a
+       font-size below 16px. Force 16px on all form controls so tapping
+       a field never triggers an unwanted zoom. This is the single most
+       disruptive mobile bug on the site. */
+    input,
+    textarea,
+    select {
+        font-size: 16px;
+    }
+
+    /* Comfortable tap targets. 44px is Apple's minimum recommended
+       hit area; the site's default padding yields ~36px. */
+    button,
+    input[type="submit"],
+    input[type="button"] {
+        min-height: 44px;
+    }
+
+    /* Long unbroken strings (URLs, hashes, media filenames) must not
+       push the page wider than the viewport. */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* Prevent the iOS "rubber band" horizontal shift on wide children. */
+    .container,
+    #formContainer,
+    .panel {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+
+    /* Tighter page gutters on phones - master.css uses 2x spacing-unit
+       (20px) which eats a lot of a 390px screen. */
+    body {
+        padding: 10px;
+    }
+
+    /* Stack every side-by-side flex row that hasn't explicitly asked
+       to stay horizontal. */
+    .button-toolbar {
+        gap: 10px;
+    }
+}
+
+
+/* ==================================================================
+   2. INDEX PAGE (catalog / home)
+   ================================================================== */
+
+@media (max-width: 768px) {
+
+    /* The ASCII banner is a 90-column <pre>. At 1.2vw it is unreadable
+       and it overflows horizontally. Scale it down to fit the viewport
+       width and let it scroll horizontally rather than forcing the whole
+       page wide. Users can still read it by scrolling the banner itself. */
+    .banner-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #ascii-banner {
+        font-size: 8px;
+        line-height: 1;
+        width: max-content;
+        min-width: 100%;
+    }
+
+    #daily-message {
+        font-size: 12px;
+        white-space: normal;
+        text-align: center;
+    }
+
+    /* Thread cards: the catalog is a single column anyway, but the form
+       inside it needs to breathe. */
+    #formContainer {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #formInputContainer {
+        flex-wrap: wrap;
+    }
+
+    textarea#messageInput {
+        width: 100%;
+        flex-basis: 100%;
+        min-height: 80px;
+    }
+
+    /* Signature / secret inputs sit side by side on desktop; on a phone
+       they get too narrow to type in. */
+    #signatureStuff {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #signatureStuff div {
+        min-width: 0;
+    }
+
+    #sendButton {
+        width: 100%;
+    }
+}
+
+
+/* ==================================================================
+   3. MESSAGEBOARD (thread view)
+   ================================================================== */
+
+@media (max-width: 768px) {
+
+    /* Desktop caps posts at 70vw, which throws away 30% of a phone
+       screen for no reason. Full width here. */
+    .messageContainer {
+        max-width: 100%;
+        padding: 10px;
+    }
+
+    /* Thumbnails float left on desktop. Floats at narrow widths cause
+       the text to wrap around them in a ragged, unreadable way. */
+    .messageMediaThumbnail {
+        float: none;
+        display: block;
+        max-width: 100%;
+        max-height: 240px;
+        margin: 8px 0;
+    }
+
+    .messageMediaThumbnail img {
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        max-height: 240px;
+        object-fit: contain;
+    }
+
+    /* The resize grabber is useless on touch and just gets in the way. */
+    textarea#messageInput {
+        resize: none;
+    }
+
+    /* Media modal: 80vw/80vh leaves the close button cramped. */
+    .modal-content {
+        max-width: 96vw;
+        max-height: 80vh;
+    }
+
+    #modalClose {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .messageContainer {
+        padding: 8px;
+    }
+
+    /* Metadata row (post count, timestamps) wraps instead of squashing. */
+    .messageMetadata {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    /* The custom file-upload label is the only way to attach media, so
+       it needs a real hit area. */
+    .custom-file-upload {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+
+/* ==================================================================
+   4. RADIO PAGE  (the worst offender on iOS)
+   ================================================================== */
+
+@media (max-width: 768px) {
+
+    /* THE critical fix. radio.css sets overflow-y: hidden on html/body
+       and height: 100vh on .container. On a phone the content is taller
+       than the screen, so the upload form and song list were completely
+       unreachable - there was no way to scroll to them at all. */
+    html,
+    body {
+        overflow-y: auto;
+        height: auto;
+    }
+
+    body {
+        min-height: 100%;
+    }
+
+    /* 100vh on iOS includes the Safari toolbar, so the bottom of the
+       layout hides under the browser chrome. dvh tracks the real
+       visible height. The vh line stays first as a fallback. */
+    .container {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding: 0 12px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+        letter-spacing: -1px;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Desktop is a fixed 300px sidebar + catalog side by side. At 390px
+       wide that left ~60px for the catalog. Stack them instead. */
+    .layout {
+        flex-direction: column;
+        overflow: visible;
+        gap: 1rem;
+    }
+
+    .player-section {
+        flex: 0 0 auto;
+        overflow-y: visible;
+        width: 100%;
+    }
+
+    .catalog-section {
+        width: 100%;
+    }
+
+    /* The catalog panel used height: 100% + overflow: hidden to fill the
+       desktop viewport. With the page now scrolling, that clips the song
+       list. Let it size to content and give the list a sensible cap. */
+    .catalog-section > .panel {
+        height: auto;
+        overflow: visible;
+    }
+
+    .song-list-container {
+        max-height: 45vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .panel {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* The docket marquee breaks out with 100vw + negative margin, which
+       causes horizontal overflow on iOS. Constrain it to the page. */
+    .docket-section {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+
+    .docket-marquee {
+        overflow: hidden;
+    }
+
+    /* Bigger, easier to hit player controls. */
+    .play-pause-btn {
+        min-height: 48px;
+        padding: 12px 32px;
+        width: 100%;
+        max-width: 280px;
+    }
+
+    /* The volume slider thumb is 14px - far too small to grab with a
+       finger. Widen the track and enlarge the thumb. */
+    .volume-slider {
+        width: 100%;
+        max-width: 320px;
+        height: 44px;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+        margin-top: -10px;
+    }
+
+    .volume-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+    }
+
+    .volume-slider::-webkit-slider-runnable-track {
+        height: 4px;
+    }
+
+    /* Song rows: 8px padding is a small target and long titles collide
+       with the badges. */
+    .song-list li {
+        padding: 12px;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .song-name {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        word-break: break-word;
+    }
+
+    .song-tags {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .button-group button {
+        width: 100%;
+    }
+
+    /* The license <select> contains very long option labels. */
+    .license-select {
+        font-size: 16px;
+        padding: 10px 6px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .panel {
+        padding: 0.75rem;
+    }
+
+    .panel h2 {
+        font-size: 1rem;
+    }
+
+    .song-list-container {
+        max-height: 40vh;
+    }
+
+    /* Marquee text is decorative; keep it from dominating the screen. */
+    .docket-scroll {
+        font-size: 0.75rem;
+    }
+}
+
+
+/* ==================================================================
+   5. ADMIN PAGE
+   ================================================================== */
+
+@media (max-width: 768px) {
+
+    .container {
+        max-width: 100%;
+        padding: 0 12px;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    .panel {
+        padding: 1rem;
+    }
+
+    /* Admin uses side-by-side form rows that are unusable when narrow. */
+    .docket-form,
+    .news-form,
+    .admin-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .docket-form .full-width,
+    .news-form .full-width {
+        width: 100%;
+    }
+
+    /* Wide tables (news list, song list) must scroll, not overflow. */
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+    }
+}
+
+
+/* ==================================================================
+   6. RULES / ATTRIBUTIONS / NECROWEB / OFFLINE (document pages)
+   ================================================================== */
+
+@media (max-width: 768px) {
+
+    /* Long-form text pages: keep a readable measure and stop wide
+       tables/pre blocks from forcing horizontal scroll. */
+    body {
+        max-width: 100%;
+    }
+
+    pre {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* attributions.html sets an inline max-width: 800px + padding: 20px */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+
+/* ==================================================================
+   7. TOUCH-ONLY BEHAVIOUR
+   ------------------------------------------------------------------
+   Hover styles are meaningless on touch and can "stick" after a tap,
+   leaving rows highlighted. Only strip them where the device genuinely
+   has no hover capability, so desktop is unaffected.
+   ================================================================== */
+
+@media (hover: none) {
+
+    .song-list li:hover {
+        background: transparent;
+    }
+
+    .docket-scroll:hover {
+        animation-play-state: running;
+    }
+
+    /* Remove the 300ms tap delay and the grey flash on iOS. */
+    button,
+    .song-list li,
+    a {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+}

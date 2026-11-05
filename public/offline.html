@@ -314,6 +314,74 @@ pre {
     #ascii-banner, #daily-message {
         font-size: 2.5vw;
     }
+
+    /* Mobile usability (mirrors /css/mobile.css; inlined because this page
+       must render with the origin server down). The ASCII banner is 90
+       columns wide - scale it to fit and let it scroll instead of forcing
+       the whole page wider than the viewport. */
+    body {
+        padding: 10px;
+        overflow-x: hidden;
+    }
+
+    .banner-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #ascii-banner {
+        font-size: 8px;
+        line-height: 1;
+        width: max-content;
+        min-width: 100%;
+    }
+
+    #daily-message {
+        font-size: 12px;
+        white-space: normal;
+        text-align: center;
+    }
+
+    /* iOS zooms the page when a focused field is under 16px. */
+    input,
+    textarea,
+    select {
+        font-size: 16px;
+    }
+
+    button {
+        min-height: 44px;
+    }
+
+    #formContainer {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #formInputContainer {
+        flex-wrap: wrap;
+    }
+
+    textarea#messageInput {
+        width: 100%;
+        flex-basis: 100%;
+        min-height: 80px;
+        resize: none;
+    }
+
+    #signatureStuff {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #signatureStuff div {
+        min-width: 0;
+    }
+
+    #sendButton {
+        width: 100%;
+    }
 }
 
 .button-toolbar {
