@@ -1,5 +1,19 @@
 /* master.css - SSH Club base theme (Energy-Aware) */
 
+/* ===== FONTS ===== */
+/* Fira Code (Light). The file is the only font shipped with the site.
+   It carries a 'calt' table that swaps punctuation for blank "spacer"
+   glyphs (e.g. exclam -> exclam.spacer) to build ligatures like !!! or ...
+   Inside text inputs that makes typed characters look deleted. Ligatures
+   are therefore disabled on form fields below. */
+@font-face {
+    font-family: 'Fira Code';
+    src: url('../fonts/fira-code-v26-latin-regular.woff2') format('woff2');
+    font-weight: 300 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* ===== THEMES ===== */
 /* Green (default – your existing values) */
 :root {
@@ -230,6 +244,16 @@ textarea {
     font-family: var(--font-family);
     font-size: var(--font-size-base);
     transition: all 0.2s ease-in-out;
+}
+
+/* Keep Fira Code's contextual-alternate ligatures out of editable text.
+   Without this, sequences like !!! or ... render with invisible spacer
+   glyphs, so typed characters appear to vanish or be replaced by spaces. */
+input,
+textarea,
+select {
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0, "clig" 0, "calt" 0;
 }
 
 input:focus,
