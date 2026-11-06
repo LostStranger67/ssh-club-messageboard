@@ -32,14 +32,14 @@
     // Export rendering parameters — match the live wall exactly:
     // #wall-container uses font-size:15px, line-height:1em, width:<cols>ch.
     // Cell height = 1em (15px). Cell width = 1ch (measured below, ~9px for
-    // Fira Code). This keeps the aspect ratio identical to the wall.
+    // OCR-A). This keeps the aspect ratio identical to the wall.
     const FONT_SIZE = 15;
-    const FONT = 'Fira Code, Courier New, monospace';
+    const FONT = 'OCR-A, Courier New, monospace';
     const CELL_H = FONT_SIZE; // 1em = font-size
     // Measure 1ch at the target font size using a throwaway canvas
     const _m = document.createElement('canvas').getContext('2d');
     _m.font = FONT_SIZE + 'px ' + FONT;
-    const CELL_W = _m.measureText('0').width; // ch width (≈9px for Fira Code)
+    const CELL_W = _m.measureText('0').width; // ch width (OCR-A is monospaced)
 
     // Derived from COLS/ROWS; recomputed once the real size is known.
     let W = Math.round(COLS * CELL_W);

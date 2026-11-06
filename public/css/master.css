@@ -1,14 +1,15 @@
 /* master.css - SSH Club base theme (Energy-Aware) */
 
 /* ===== FONTS ===== */
-/* Fira Code (Light). The file is the only font shipped with the site.
-   It carries a 'calt' table that swaps punctuation for blank "spacer"
-   glyphs (e.g. exclam -> exclam.spacer) to build ligatures like !!! or ...
-   Inside text inputs that makes typed characters look deleted. Ligatures
-   are therefore disabled on form fields below. */
+/* OCR-A (CC0 1.0, public domain). The only font shipped with the site.
+   Source: https://github.com/retorillo/ocr-ak (dist/OCR-AK.ttf), converted
+   to WOFF2. Monospaced (single 715/1000em advance), which is what the
+   graffiti wall's ch-based grid depends on.
+   Unlike Fira Code it has no 'calt' table, so no ligature-spacer problem:
+   typed punctuation always renders as itself. */
 @font-face {
-    font-family: 'Fira Code';
-    src: url('../fonts/fira-code-v26-latin-regular.woff2') format('woff2');
+    font-family: 'OCR-A';
+    src: url('../fonts/ocr-a-regular.woff2') format('woff2');
     font-weight: 300 400;
     font-style: normal;
     font-display: swap;
@@ -28,7 +29,7 @@
     --color-signature: rgb(150, 0, 100);
     --color-bg-subtle-glow: rgb(0, 25, 10);
     /* Base styles (font, spacing, etc.) */
-    --font-family: 'Fira Code', 'Courier New', monospace;
+    --font-family: 'OCR-A', 'Courier New', monospace;
     --font-size-base: 16px;
     --font-size-sm: 14px;
     --spacing-unit: 10px;
@@ -246,9 +247,11 @@ textarea {
     transition: all 0.2s ease-in-out;
 }
 
-/* Keep Fira Code's contextual-alternate ligatures out of editable text.
-   Without this, sequences like !!! or ... render with invisible spacer
-   glyphs, so typed characters appear to vanish or be replaced by spaces. */
+/* Keep contextual-alternate ligatures out of editable text.
+   Fira Code shipped a 'calt' table that swapped punctuation for invisible
+   spacer glyphs, so typed characters appeared to vanish. OCR-A has no such
+   table, but the rule is kept: it is harmless, and the VT323 theme still
+   applies, so this guards any future font too. */
 input,
 textarea,
 select {
