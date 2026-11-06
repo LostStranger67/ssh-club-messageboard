@@ -122,9 +122,13 @@ body {
 
 #wall-container {
     position: relative;
-    /* Dimensions match Server Config (200x100) */
-    width: 300ch;  
-    height: 150em; 
+    /* Size comes from the server (GRAFFITI_WALL_WIDTH/HEIGHT in .env),
+       injected as --wall-cols / --wall-rows on the :root of /wall.
+       The fallbacks below only apply if that injection is missing.
+       width in ch and height in em match the 1ch x 1em cell grid drawn
+       on the canvas, so the CSS box and the renderer share one ruler. */
+    width: calc(var(--wall-cols, 200) * 1ch);
+    height: calc(var(--wall-rows, 55) * 1em);
     
     /* Near-black panel with a whisper of the theme accent (like the green
        theme's rgb(15,15,0) background) so the neon palette reads the

@@ -23,12 +23,14 @@
     const BLINK_BASE = 800;
     const LEGACY_BLINK = 8;
 
-    // Grid dimensions (must match server + graffiti.js)
-    const COLS = 300;
-    const ROWS = 150;
+    // Grid dimensions. Filled from GET /api/graffiti/config by
+    // exportWallGif() so the size lives in one place (.env -> server).
+    // The fallbacks only apply if that request fails.
+    let COLS = 200;
+    let ROWS = 55;
 
     // Export rendering parameters — match the live wall exactly:
-    // #wall-container uses font-size:15px, line-height:1em, width:300ch.
+    // #wall-container uses font-size:15px, line-height:1em, width:<cols>ch.
     // Cell height = 1em (15px). Cell width = 1ch (measured below, ~9px for
     // Fira Code). This keeps the aspect ratio identical to the wall.
     const FONT_SIZE = 15;
@@ -38,8 +40,17 @@
     const _m = document.createElement('canvas').getContext('2d');
     _m.font = FONT_SIZE + 'px ' + FONT;
     const CELL_W = _m.measureText('0').width; // ch width (≈9px for Fira Code)
-    const W = Math.round(COLS * CELL_W);  // ≈2700
-    const H = Math.round(ROWS * CELL_H);  // 2250
+
+    // Derived from COLS/ROWS; recomputed once the real size is known.
+    let W = Math.round(COLS * CELL_W);
+    let H = Math.round(ROWS * CELL_H);
+
+    function applyWallSize(cols, rows) {
+        COLS = cols;
+        ROWS = rows;
+        W = Math.round(COLS * CELL_W);
+        H = Math.round(ROWS * CELL_H);
+    }
 
     // Glow parameters: same as the live wall at 1× dpr
     // (static = 2, blink = 3 + 10)
@@ -142,6 +153,19 @@
         try {
             btn.disabled = true;
             status.textContent = '> Fetching wall data...';
+
+            // 0. Pick up the wall size from the server (single source of truth)
+            try {
+                const cfgRes = await fetch('/api/graffiti/config');
+                if (cfgRes.ok) {
+                    const cfg = await cfgRes.json();
+                    if (Number.isInteger(cfg.width) && Number.isInteger(cfg.height)) {
+                        applyWallSize(cfg.width, cfg.height);
+                    }
+                }
+            } catch (e) {
+                console.error('Could not load wall config, using defaults:', e);
+            }
 
             // 1. Fetch all pixels from the backend
             const res = await fetch('/api/graffiti');

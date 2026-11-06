@@ -34,9 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
     loadNews();
     setInterval(loadNews, 300000); // refresh every 5 minutes, like the docket
 
-    // Config matches server
-    const COLS = 300;
-    const ROWS = 150;
+    // Wall geometry. Filled from GET /api/graffiti/config in init() so the
+    // dimensions live in one place (.env -> server -> here). The fallbacks
+    // only matter if that request fails; the server validates against its
+    // own copy either way, so a mismatch surfaces as rejected pixels rather
+    // than silent corruption.
+    let COLS = 200;
+    let ROWS = 55;
     // Must match #wall-container { font-size } — used for the sprite font size
     const FONT_SIZE = 15;
 
@@ -907,6 +911,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    async function loadConfig() {
+        try {
+            const res = await fetch('/api/graffiti/config');
+            if (!res.ok) throw new Error(`config ${res.status}`);
+            const cfg = await res.json();
+            if (Number.isInteger(cfg.width) && cfg.width > 0) COLS = cfg.width;
+            if (Number.isInteger(cfg.height) && cfg.height > 0) ROWS = cfg.height;
+        } catch (e) {
+            console.error('Could not load wall config, using defaults:', e);
+        }
+    }
+
     function init() {
         // Use the site's own font stack so canvas glyphs match the DOM grid
         const style = getComputedStyle(document.documentElement);
@@ -932,8 +948,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Wait for the webfont (if it is ever wired up) so the first sprites use
     // the right face; 1.5s cap so a slow font never blocks the wall.
-    Promise.race([
-        document.fonts.ready,
-        new Promise(resolve => setTimeout(resolve, 1500))
+    // The config fetch runs alongside it: COLS/ROWS must be known before
+    // resizeCanvas() sizes the backing store and before loadWall() maps
+    // coordinates, so it is awaited before init().
+    Promise.all([
+        Promise.race([
+            document.fonts.ready,
+            new Promise(resolve => setTimeout(resolve, 1500))
+        ]),
+        loadConfig()
     ]).then(init);
 });

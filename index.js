@@ -58,17 +58,37 @@ const deleteLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardH
 const graffitiLimiter = rateLimit({ windowMs: 5 * 60 * 1000, limit: 500, standardHeaders: true, legacyHeaders: false });
 
 // --- Graffiti Wall Configuration ---
-const WALL_WIDTH = 300;  // Characters wide
-const WALL_HEIGHT = 150; // Characters high
+// SINGLE SOURCE OF TRUTH: the wall dimensions come from the environment
+// (see .env / .env.example). Every consumer reads them from here:
+//   - server validation + pixel caps (this file)
+//   - the browser wall renderer   (public/js/graffiti.js)
+//   - the PNG exporter            (public/js/wall-export.js)
+//   - the wall's CSS box          (public/css/graffiti.css, via a CSS var)
+// Clients get the values from GET /api/graffiti/config, so changing them
+// here (or in .env) is enough - nothing else needs editing.
+function envInt(name, fallback, min, max) {
+    const raw = process.env[name];
+    if (raw === undefined || raw === '') return fallback;
+    const n = parseInt(raw, 10);
+    if (!Number.isFinite(n) || n < min || n > max) {
+        console.warn(`[config] ${name}="${raw}" is invalid (expected ${min}-${max}); using ${fallback}`);
+        return fallback;
+    }
+    return n;
+}
+
+const WALL_WIDTH = envInt('GRAFFITI_WALL_WIDTH', 200, 10, 2000);   // Characters wide
+const WALL_HEIGHT = envInt('GRAFFITI_WALL_HEIGHT', 55, 10, 2000);  // Characters high
 // A paste can cover the whole wall (WALL_WIDTH * WALL_HEIGHT cells). Allow four
 // full walls per request so even a monstrous copy-paste lands in one shot
 // instead of getting a 413 (which the client swallowed, so the art just
 // "disappeared").
-const GRAFFITI_MAX_PIXELS = WALL_WIDTH * WALL_HEIGHT * 4; // 180,000 pixels
+const GRAFFITI_MAX_PIXELS = WALL_WIDTH * WALL_HEIGHT * 4;
 // Worst case is ~48 bytes of JSON per pixel (2-char emoji + blink colour code),
 // i.e. ~9 MB for the cap above. The default express.json limit is 100kb, which
 // rejected pastes of ~2k pixels long before the pixel cap was ever reached.
-const GRAFFITI_BODY_LIMIT = '24mb';
+// Derived from the wall size so a bigger wall cannot silently exceed it.
+const GRAFFITI_BODY_LIMIT = `${Math.max(1, Math.ceil(GRAFFITI_MAX_PIXELS * 48 / (1024 * 1024)))}mb`;
 const DECAY_INTERVAL_MS = 1000 * 60 * 60 * 24 * 2; // Run decay every 48 hours (change the multiplier as needed)
 const DECAY_FACTOR = 0.7; // Lose 30% brightness
 
@@ -697,6 +717,18 @@ function checkAndArchiveOldestThread() {
     });
 }
 
+// Public wall geometry. The client renderer and the PNG exporter both read
+// this instead of hardcoding dimensions, so the wall size lives in exactly
+// one place (the environment / this file's WALL_WIDTH & WALL_HEIGHT).
+app.get('/api/graffiti/config', (req, res) => {
+    res.set('Cache-Control', 'public, max-age=300');
+    res.json({
+        width: WALL_WIDTH,
+        height: WALL_HEIGHT,
+        maxPixels: GRAFFITI_MAX_PIXELS
+    });
+});
+
 app.get('/api/graffiti', (req, res) => {
     db.all('SELECT x, y, char, brightness, color FROM graffiti', [], (err, rows) => {
         if (err) return internalError(res, err);
@@ -878,7 +910,16 @@ app.get('/admin', (req, res) => {
 });
 
 app.get('/wall', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'graffiti.html'));
+    // Inject the wall geometry as CSS custom properties so graffiti.css can
+    // size the wall box from the same values the server validates against.
+    // No template engine in this project, so this is a single targeted
+    // substitution into the static file.
+    const file = path.join(__dirname, 'public', 'graffiti.html');
+    fs.readFile(file, 'utf8', (err, html) => {
+        if (err) return internalError(res, err);
+        const vars = `:root{--wall-cols:${WALL_WIDTH};--wall-rows:${WALL_HEIGHT};}`;
+        res.type('html').send(html.replace('</head>', `<style>${vars}</style>\n</head>`));
+    });
 });
 
 // --- Necroweb: archived threads API (paginated, 20 per page, bump order) ---
